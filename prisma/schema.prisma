@@ -16,6 +16,13 @@ model Patient {
   lastName  String
   age       Int
   allergies Allergy[]
+  gender    Gender
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
 model Ingredient {
@@ -28,6 +35,7 @@ model Ingredient {
 
 model Allergy {
   id           String     @id @default(cuid())
+  name         String
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
   ingredientId String
   patients     Patient[]
