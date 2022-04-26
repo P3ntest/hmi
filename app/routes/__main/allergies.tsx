@@ -27,7 +27,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
 
 interface LoaderData {
-    allergies: (Allergy & { ingredients: Ingredient[] })[]
+    allergies: (Allergy & { ingredients: Ingredient[], patients: Patient[] })[]
 }
 
 function NewDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
@@ -68,7 +68,8 @@ export default function Patients() {
         return {
             id: allergy.id,
             name: allergy.name,
-            numAffectedIngredients: allergy.ingredients.length
+            numAffectedIngredients: allergy.ingredients.length,
+            numAffectedPatients: allergy.patients.length
         }
     });
 
@@ -81,6 +82,7 @@ export default function Patients() {
                         <TableCell>Link</TableCell>
                         <TableCell align="right">Name</TableCell>
                         <TableCell align="right">Affected Ingredients</TableCell>
+                        <TableCell align="right">Affected Patients</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -99,6 +101,7 @@ export default function Patients() {
                             </TableCell>
                             <TableCell align="right">{row.name}</TableCell>
                             <TableCell align="right">{row.numAffectedIngredients}</TableCell>
+                            <TableCell align="right">{row.numAffectedPatients}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -116,7 +119,8 @@ export const loader: LoaderFunction = async () => {
 
     const allergies = await db.allergy.findMany({
         include: {
-            ingredients: true
+            ingredients: true,
+            patients: true
         }
     });
 
