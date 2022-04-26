@@ -18,6 +18,7 @@ model Patient {
   allergies  Allergy[]
   gender     Gender
   registered DateTime  @default(now())
+  notes      String    @default("")
 }
 
 enum Gender {

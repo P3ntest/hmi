@@ -25,7 +25,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
-import { AllergySelector } from "~/components/multiSelectors";
+import { AllergySelector, GenderSelect } from "~/components/multiSelectors";
 import { BasicBreadcrumbs } from "~/components/crumbs";
 
 interface LoaderData {
@@ -36,12 +36,6 @@ interface LoaderData {
 }
 
 function NewDialog({ open, setOpen, allergies }: { open: boolean, setOpen: (open: boolean) => void, allergies: Allergy[] }) {
-    const [gender, setGender] = useState<string>('MALE');
-
-    const handleChange = (event: SelectChangeEvent) => {
-        setGender(event.target.value);
-    };
-
     return (
         <Dialog open={open} onClose={() => setOpen(false)}>
             <DialogTitle>Register new patient</DialogTitle>
@@ -78,18 +72,7 @@ function NewDialog({ open, setOpen, allergies }: { open: boolean, setOpen: (open
                         variant="standard"
                     />
                     <InputLabel id="gender">Gender</InputLabel>
-                    <Select
-                        labelId="gender"
-                        id="genderSelect"
-                        value={gender}
-                        label="Gender"
-                        onChange={handleChange}
-                    >
-                        <MenuItem value={"MALE"}>Male</MenuItem>
-                        <MenuItem value={"FEMALE"}>Female</MenuItem>
-                        <MenuItem value={"OTHER"}>Other</MenuItem>
-                    </Select>
-                    <input type="hidden" value={gender} name="gender" />
+                    <GenderSelect startingGender="MALE" />
                     <AllergySelector name="allergies" allergies={allergies} defaultSelected={[]} />
                 </DialogContent>
                 <DialogActions>

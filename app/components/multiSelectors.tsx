@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 import { Allergy, Ingredient } from "@prisma/client";
 import { useState } from "react";
 
@@ -47,5 +47,26 @@ export function IngredientSelector({ ingredients, defaultSelected, name }: { ing
             )}
         />
         < input type="hidden" value={JSON.stringify(selected)} name={name} />
+    </>
+}
+
+export function GenderSelect({ startingGender }: { startingGender: string }) {
+    const [gender, setGender] = useState<string>(startingGender);
+    const handleChange = (event: SelectChangeEvent) => {
+        setGender(event.target.value);
+    };
+    return <>
+        <Select
+            labelId="gender"
+            id="genderSelect"
+            value={gender}
+            label="Gender"
+            onChange={handleChange}
+        >
+            <MenuItem value={"MALE"}>Male</MenuItem>
+            <MenuItem value={"FEMALE"}>Female</MenuItem>
+            <MenuItem value={"OTHER"}>Other</MenuItem>
+        </Select>
+        <input type="hidden" value={gender} name="gender" />
     </>
 }
