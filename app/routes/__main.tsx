@@ -1,3 +1,4 @@
+import { Container } from "@mui/material";
 import { Outlet } from "@remix-run/react";
 import { ResponsiveAppBar } from "~/components/navbar";
 import styles from "~/styles/global.css";
@@ -9,6 +10,8 @@ export function links() {
 export default function MainWrapper() {
     return <>
         <ResponsiveAppBar />
-        <Outlet />
+        <Container>
+            <Outlet />
+        </Container>
     </>;
 }

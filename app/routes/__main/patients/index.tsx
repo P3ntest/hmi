@@ -25,7 +25,8 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
-import { AllergySelector } from "~/components/allergieSelection";
+import { AllergySelector } from "~/components/multiSelectors";
+import { BasicBreadcrumbs } from "~/components/crumbs";
 
 interface LoaderData {
     patients: (Patient & {
@@ -118,6 +119,7 @@ export default function Patients() {
     });
 
     return (<>
+        <BasicBreadcrumbs items={["Patients"]} />
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="patients">
                 <TableHead>

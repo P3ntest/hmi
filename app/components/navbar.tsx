@@ -45,7 +45,7 @@ export const ResponsiveAppBar = () => {
                         component="div"
                         sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
                     >
-                        LOGO
+                        PVS
                     </Typography>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -92,7 +92,7 @@ export const ResponsiveAppBar = () => {
                         component="div"
                         sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
                     >
-                        LOGO
+                        PVS
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
@@ -107,7 +107,9 @@ export const ResponsiveAppBar = () => {
                             </Link>
                         ))}
                     </Box>
-
+                    <Box sx={{ flexGrow: 0 }}>
+                        <Typography fontSize={"13px"}>Made by <a href="https://github.com/P3ntest" style={{ color: "lightblue" }}>Julius van Voorden</a></Typography>
+                    </Box>
                     {/* <Box sx={{ flexGrow: 0 }}>
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>

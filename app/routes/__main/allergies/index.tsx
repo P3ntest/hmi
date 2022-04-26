@@ -10,7 +10,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Autocomplete, Button, Fab } from "@mui/material";
+import { Button, Fab } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -25,23 +25,21 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
-import { AllergySelector } from "~/components/allergieSelection";
+import { BasicBreadcrumbs } from "~/components/crumbs";
 
 interface LoaderData {
-    ingredients: (Ingredient & { allergies: Allergy[] })[],
-    allergies: Allergy[]
+    allergies: (Allergy & { ingredients: Ingredient[], patients: Patient[] })[]
 }
 
-function NewDialog({ open, setOpen, allergies }: { open: boolean, setOpen: (open: boolean) => void, allergies: Allergy[] }) {
-
+function NewDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
 
     return (
         <Dialog open={open} onClose={() => setOpen(false)}>
-            <DialogTitle>Create a new ingredient</DialogTitle>
+            <DialogTitle>Register a new allergy</DialogTitle>
             <Form method="post">
                 <DialogContent>
                     <DialogContentText>
-                        Please provide details about the ingredient.
+                        Please provide details about the allergy.
                     </DialogContentText>
                     <TextField
                         autoFocus
@@ -52,7 +50,6 @@ function NewDialog({ open, setOpen, allergies }: { open: boolean, setOpen: (open
                         type="text"
                         variant="standard"
                     />
-                    <AllergySelector name="allergies" allergies={allergies} defaultSelected={[]} />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpen(false)}>Cancel</Button>
@@ -63,20 +60,22 @@ function NewDialog({ open, setOpen, allergies }: { open: boolean, setOpen: (open
     );
 }
 
-export default function Ingredients() {
-    const { ingredients, allergies } = useLoaderData<LoaderData>();
+export default function Patients() {
+    const { allergies } = useLoaderData<LoaderData>();
 
     const [open, setOpen] = useState<boolean>(false);
 
-    const rows = ingredients.map(ingredient => {
+    const rows = allergies.map(allergy => {
         return {
-            id: ingredient.id,
-            name: ingredient.name,
-            allergies: ingredient.allergies.length > 0 ? ingredient.allergies.map(allergy => allergy.name).join(", ") : "None"
+            id: allergy.id,
+            name: allergy.name,
+            numAffectedIngredients: allergy.ingredients.length,
+            numAffectedPatients: allergy.patients.length
         }
     });
 
     return (<>
+        <BasicBreadcrumbs items={["Allergies"]} />
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="patients">
                 <TableHead>
@@ -84,7 +83,8 @@ export default function Ingredients() {
                         {/* <TableCell>ID</TableCell> */}
                         <TableCell>Link</TableCell>
                         <TableCell align="right">Name</TableCell>
-                        <TableCell align="right">Allergies</TableCell>
+                        <TableCell align="right">Affected Ingredients</TableCell>
+                        <TableCell align="right">Affected Patients</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -102,7 +102,8 @@ export default function Ingredients() {
                                 </Link>
                             </TableCell>
                             <TableCell align="right">{row.name}</TableCell>
-                            <TableCell align="right">{row.allergies}</TableCell>
+                            <TableCell align="right">{row.numAffectedIngredients}</TableCell>
+                            <TableCell align="right">{row.numAffectedPatients}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -112,21 +113,20 @@ export default function Ingredients() {
             <AddIcon />
         </Fab>
 
-        <NewDialog open={open} setOpen={setOpen} allergies={allergies} />
+        <NewDialog open={open} setOpen={setOpen} />
     </>);
 }
 
 export const loader: LoaderFunction = async () => {
 
-    const ingredients = await db.ingredient.findMany({
+    const allergies = await db.allergy.findMany({
         include: {
-            allergies: true
+            ingredients: true,
+            patients: true
         }
     });
-    const allergies = await db.allergy.findMany();
 
     return {
-        ingredients,
         allergies
     } as LoaderData
 };
@@ -135,7 +135,6 @@ export const action: ActionFunction = async ({ request }) => {
     const formData = await request.formData();
 
     const name = formData.get('name') as string;
-    const rawAllergies = formData.get('allergies') as string;
 
     if (!name) {
         return json({
@@ -144,19 +143,14 @@ export const action: ActionFunction = async ({ request }) => {
         });
     }
 
-    const allergies = JSON.parse(rawAllergies) as Allergy[];
-
-    const ingredient = await db.ingredient.create({
+    const allergy = await db.allergy.create({
         data: {
-            name,
-            allergies: {
-                connect: allergies.map(allergy => ({ id: allergy.id }))
-            }
+            name
         }
     });
 
     return json({
         success: true,
-        error: `${name} has been created.`
+        error: `${name} has been registered.`
     });
 };
