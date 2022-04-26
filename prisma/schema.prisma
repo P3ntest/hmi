@@ -11,12 +11,13 @@ datasource db {
 }
 
 model Patient {
-  id        String    @id @default(cuid())
-  firstName String
-  lastName  String
-  age       Int
-  allergies Allergy[]
-  gender    Gender
+  id         String    @id @default(cuid())
+  firstName  String
+  lastName   String
+  age        Int
+  allergies  Allergy[]
+  gender     Gender
+  registered DateTime  @default(now())
 }
 
 enum Gender {

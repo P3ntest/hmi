@@ -112,7 +112,8 @@ export default function Patients() {
             lastName: patient.lastName,
             age: patient.age,
             allergies: patient.allergies.length > 0 ? patient.allergies.map(allergy => allergy.name).join(', ') : "None",
-            gender: patient.gender
+            gender: patient.gender,
+            registered: patient.registered
         }
     });
 
@@ -126,6 +127,7 @@ export default function Patients() {
                         <TableCell align="right">First Name</TableCell>
                         <TableCell align="right">Last Name</TableCell>
                         <TableCell align="right">Age</TableCell>
+                        <TableCell align="right">Registered At</TableCell>
                         <TableCell align="right">Gender</TableCell>
                         <TableCell align="right">Allergies</TableCell>
                     </TableRow>
@@ -147,6 +149,7 @@ export default function Patients() {
                             <TableCell align="right">{row.firstName}</TableCell>
                             <TableCell align="right">{row.lastName}</TableCell>
                             <TableCell align="right">{row.age}</TableCell>
+                            <TableCell align="right">{new Date(row.registered).toDateString()}</TableCell>
                             <TableCell align="right">{row.gender}</TableCell>
                             <TableCell align="right">{row.allergies}</TableCell>
                         </TableRow>
