@@ -1,4 +1,4 @@
-import { Patient, Allergy, Gender } from "@prisma/client";
+import { Patient, Allergy, Gender, Ingredient } from "@prisma/client";
 import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
@@ -10,7 +10,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Button, Fab } from "@mui/material";
+import { Autocomplete, Button, Fab } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -28,67 +28,30 @@ import { useState } from "react";
 import { AllergySelector } from "~/components/allergieSelection";
 
 interface LoaderData {
-    patients: (Patient & {
-        allergies: Allergy[]
-    })[],
+    ingredients: (Ingredient & { allergies: Allergy[] })[],
     allergies: Allergy[]
 }
 
 function NewDialog({ open, setOpen, allergies }: { open: boolean, setOpen: (open: boolean) => void, allergies: Allergy[] }) {
-    const [gender, setGender] = useState<string>('MALE');
 
-    const handleChange = (event: SelectChangeEvent) => {
-        setGender(event.target.value);
-    };
 
     return (
         <Dialog open={open} onClose={() => setOpen(false)}>
-            <DialogTitle>Register new patient</DialogTitle>
+            <DialogTitle>Create a new ingredient</DialogTitle>
             <Form method="post">
                 <DialogContent>
                     <DialogContentText>
-                        Please provide details about the patient.
+                        Please provide details about the ingredient.
                     </DialogContentText>
                     <TextField
                         autoFocus
                         margin="dense"
-                        id="firstName"
-                        name="firstName"
-                        label="First Name"
+                        id="name"
+                        name="name"
+                        label="Name"
                         type="text"
                         variant="standard"
                     />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="lastName"
-                        name="lastName"
-                        label="Last Name"
-                        type="text"
-                        variant="standard"
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="age"
-                        name="age"
-                        label="Age"
-                        type="number"
-                        variant="standard"
-                    />
-                    <InputLabel id="gender">Gender</InputLabel>
-                    <Select
-                        labelId="gender"
-                        id="genderSelect"
-                        value={gender}
-                        label="Gender"
-                        onChange={handleChange}
-                    >
-                        <MenuItem value={"MALE"}>Male</MenuItem>
-                        <MenuItem value={"FEMALE"}>Female</MenuItem>
-                        <MenuItem value={"OTHER"}>Other</MenuItem>
-                    </Select>
-                    <input type="hidden" value={gender} name="gender" />
                     <AllergySelector name="allergies" allergies={allergies} defaultSelected={[]} />
                 </DialogContent>
                 <DialogActions>
@@ -100,19 +63,16 @@ function NewDialog({ open, setOpen, allergies }: { open: boolean, setOpen: (open
     );
 }
 
-export default function Patients() {
-    const { patients, allergies } = useLoaderData<LoaderData>();
+export default function Ingredients() {
+    const { ingredients, allergies } = useLoaderData<LoaderData>();
 
     const [open, setOpen] = useState<boolean>(false);
 
-    const rows = patients.map(patient => {
+    const rows = ingredients.map(ingredient => {
         return {
-            id: patient.id,
-            firstName: patient.firstName,
-            lastName: patient.lastName,
-            age: patient.age,
-            allergies: patient.allergies.length > 0 ? patient.allergies.map(allergy => allergy.name).join(', ') : "None",
-            gender: patient.gender
+            id: ingredient.id,
+            name: ingredient.name,
+            allergies: ingredient.allergies.length > 0 ? ingredient.allergies.map(allergy => allergy.name).join(", ") : "None"
         }
     });
 
@@ -123,10 +83,7 @@ export default function Patients() {
                     <TableRow>
                         {/* <TableCell>ID</TableCell> */}
                         <TableCell>Link</TableCell>
-                        <TableCell align="right">First Name</TableCell>
-                        <TableCell align="right">Last Name</TableCell>
-                        <TableCell align="right">Age</TableCell>
-                        <TableCell align="right">Gender</TableCell>
+                        <TableCell align="right">Name</TableCell>
                         <TableCell align="right">Allergies</TableCell>
                     </TableRow>
                 </TableHead>
@@ -144,10 +101,7 @@ export default function Patients() {
                                     <Button>View Page</Button>
                                 </Link>
                             </TableCell>
-                            <TableCell align="right">{row.firstName}</TableCell>
-                            <TableCell align="right">{row.lastName}</TableCell>
-                            <TableCell align="right">{row.age}</TableCell>
-                            <TableCell align="right">{row.gender}</TableCell>
+                            <TableCell align="right">{row.name}</TableCell>
                             <TableCell align="right">{row.allergies}</TableCell>
                         </TableRow>
                     ))}
@@ -164,16 +118,15 @@ export default function Patients() {
 
 export const loader: LoaderFunction = async () => {
 
-    const patients = await db.patient.findMany({
+    const ingredients = await db.ingredient.findMany({
         include: {
             allergies: true
         }
     });
-
     const allergies = await db.allergy.findMany();
 
     return {
-        patients,
+        ingredients,
         allergies
     } as LoaderData
 };
@@ -181,27 +134,21 @@ export const loader: LoaderFunction = async () => {
 export const action: ActionFunction = async ({ request }) => {
     const formData = await request.formData();
 
-    const firstName = formData.get('firstName') as string;
-    const lastName = formData.get('lastName') as string;
-    const age = formData.get('age') as string;
-    const gender = formData.get("gender") as string;
-    const rawAllergies = formData.get("allergies") as string;
+    const name = formData.get('name') as string;
+    const rawAllergies = formData.get('allergies') as string;
 
-    if (!firstName || !lastName || !age || !gender || !rawAllergies) {
+    if (!name) {
         return json({
             success: false,
             error: "Please provide all the required fields."
         });
     }
 
-    const allergies = JSON.parse(rawAllergies) as Allergy[]
+    const allergies = JSON.parse(rawAllergies) as Allergy[];
 
-    const patient = await db.patient.create({
+    const ingredient = await db.ingredient.create({
         data: {
-            firstName,
-            lastName,
-            age: Number(age),
-            gender: gender as Gender,
+            name,
             allergies: {
                 connect: allergies.map(allergy => ({ id: allergy.id }))
             }
@@ -210,6 +157,6 @@ export const action: ActionFunction = async ({ request }) => {
 
     return json({
         success: true,
-        error: `${firstName} ${lastName} has been registered.`
+        error: `${name} has been created.`
     });
 };

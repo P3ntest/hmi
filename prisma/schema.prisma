@@ -34,11 +34,10 @@ model Ingredient {
 }
 
 model Allergy {
-  id           String     @id @default(cuid())
-  name         String
-  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-  ingredientId String
-  patients     Patient[]
+  id          String       @id @default(cuid())
+  name        String
+  ingredients Ingredient[]
+  patients    Patient[]
 }
 
 model Food {
