@@ -1,7 +1,7 @@
-import * as React from 'react';
 import Typography from '@mui/material/Typography';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
+import { Link as MuiLink } from '@mui/material';
+import { Link } from '@remix-run/react';
 
 export function BasicBreadcrumbs({ items }: { items: (string | string[])[] }) {
     items = ["PSV", ...items];
@@ -12,8 +12,10 @@ export function BasicBreadcrumbs({ items }: { items: (string | string[])[] }) {
                 {items.map((item, index) => {
                     const color = index === items.length - 1 ? 'text.primary' : 'inherit';
                     if (Array.isArray(item)) {
-                        return <Link underline="hover" color={color} href={item[1]}>
-                            {item[0]}
+                        return <Link to={item[1]} style={{ color: "inherit" }}>
+                            <MuiLink underline="hover" color={color}>
+                                {item[0]}
+                            </MuiLink>
                         </Link>;
                     } else {
                         return <Typography color={color}>{item}</Typography>
