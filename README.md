@@ -7,4 +7,4 @@ I created this as a portfolio project to show my react, remix and prisma skills.
 ## :gear: Functionality
 You start off by registering patients, food, ingredients and allergies. The system then prints out possible food you can make for your patients.
 
-*Copyright 2020 Julius van Voorden. You may not redistribute this project without the permission of the author. Violations of this license may result in a lawsuit. All rights resevered.*
+*Copyright 2022 Julius van Voorden. You may not redistribute this project without the permission of the author. Violations of this license may result in a lawsuit. All rights resevered.*
